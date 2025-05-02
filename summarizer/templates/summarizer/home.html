@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LLM Browser - Summarizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-6">
+
+    <div class="w-full max-w-3xl bg-white rounded-2xl shadow-lg p-8 space-y-6">
+        <h2 class="text-2xl font-bold text-gray-800">LLM Web Browser</h2>
+
+        <!-- Chat Form -->
+        <form method="POST" class="flex gap-4 items-center">
+            {% csrf_token %}
+            <input type="url" name="url" placeholder="Paste a URL to summarize..." required
+                   class="flex-grow border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+            <button type="submit"
+                    class="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 transition">
+                Summarize
+            </button>
+        </form>
+
+        <!-- Chat Display -->
+        {% if summary %}
+            <div class="space-y-4">
+                <!-- User message -->
+                <div class="flex justify-end">
+                    <div class="bg-blue-100 text-blue-800 p-4 rounded-xl max-w-xl text-right">
+                        You asked to summarize:
+                        <br>
+                        <span class="text-xs italic text-gray-500">{{ request.POST.url }}</span>
+                    </div>
+                </div>
+
+                <!-- Assistant reply -->
+                <div class="flex justify-start">
+                    <div class="bg-gray-100 text-gray-800 p-4 rounded-xl max-w-xl">
+                        <strong>Assistant:</strong><br>
+                        {{ summary }}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+</body>
+</html>
