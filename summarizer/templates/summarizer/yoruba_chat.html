@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Learn Yoruba Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-6">
+
+    <div class="w-full max-w-2xl bg-white shadow-2xl rounded-2xl p-6 flex flex-col space-y-4">
+        <h2 class="text-xl font-bold text-center text-purple-700">🇳🇬 Yoruba Teaching Chat</h2>
+
+        <!-- Chat Box -->
+        <div id="chatBox" class="flex-1 h-96 overflow-y-auto bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3 text-sm">
+            <div class="text-gray-400 text-center">Ask anything about Yoruba greetings, phrases, or culture...</div>
+        </div>
+
+        <!-- Input Row -->
+        <div class="flex items-center space-x-2">
+            <input type="text" id="userInput" placeholder="Type your question..." class="flex-grow border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+            <button id="sendBtn" class="bg-purple-600 text-white px-4 py-2 rounded-xl hover:bg-purple-700 transition">Send</button>
+        </div>
+    </div>
+
+    <script>
+        function appendMessage(text, sender) {
+            const div = document.createElement("div");
+            div.className = sender === "user" 
+                ? "text-right bg-purple-100 text-purple-900 p-3 rounded-xl max-w-xs ml-auto"
+                : "text-left bg-gray-100 text-gray-800 p-3 rounded-xl max-w-xs";
+            div.textContent = text;
+            document.getElementById("chatBox").appendChild(div);
+            div.scrollIntoView({ behavior: "smooth" });
+        }
+
+        const sendBtn = document.getElementById("sendBtn");
+        const input = document.getElementById("userInput");
+
+        sendBtn.addEventListener("click", async () => {
+            const prompt = input.value.trim();
+            if (!prompt) return;
+
+            appendMessage(prompt, "user");
+            input.value = "";
+            input.focus();
+
+            appendMessage("⏳ Thinking...", "assistant");
+
+            const response = await fetch("/teach-yoruba/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ prompt: prompt })
+            });
+
+            const data = await response.json();
+            document.querySelectorAll("#chatBox > div").forEach(el => {
+                if (el.textContent === "⏳ Thinking...") el.remove();
+            });
+
+            if (data.success) {
+                appendMessage(data.response, "assistant");
+            } else {
+                appendMessage("❌ " + (data.error || "Something went wrong."), "assistant");
+            }
+        });
+
+        input.addEventListener("keypress", function (e) {
+            if (e.key === "Enter") sendBtn.click();
+        });
+    </script>
+</body>
+</html>
